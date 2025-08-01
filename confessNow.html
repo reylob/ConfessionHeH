@@ -1,0 +1,235 @@
+<!--created for fun 😀-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Yes Please 🥺</title>
+<style>
+  body {
+    margin: 0;
+    background: #000;
+    font-family: Arial, sans-serif;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  /* Background video */
+  .background-video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    object-fit: cover;
+    z-index: 0;
+  }
+
+  /* Hearts canvas */
+  #heartsCanvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  /* Door container */
+  .door-container {
+    display: flex;
+    width: 100%;
+    height: 100vh;
+    position: absolute;
+    z-index: 3;
+    background: radial-gradient(circle, rgba(255,255,255,0.15), transparent 70%);
+  }
+
+  .door {
+    height: 100%;
+    width: 50vw;
+    background-color: #5A3825; /* Dark Walnut Brown */
+    position: relative;
+    transition: transform 1.5s cubic-bezier(0.77, 0, 0.175, 1);
+    cursor: pointer;
+  }
+
+  /* Door knobs (golden) */
+  .door::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    width: 30px;
+    height: 30px;
+    background: radial-gradient(circle, #FFD700 30%, #B8860B 100%);
+    border-radius: 50%;
+    border: 2px solid #8B7500;
+  }
+
+  .left-door {
+    transform-origin: left center;
+    box-shadow: inset -20px 0 40px rgba(255, 255, 255, 0.2);
+  }
+
+  .right-door {
+    transform-origin: right center;
+    box-shadow: inset 20px 0 40px rgba(255, 255, 255, 0.2);
+  }
+
+  .left-door::after {
+    right: 20px;
+    transform: translateY(-50%);
+  }
+
+  .right-door::after {
+    left: 20px;
+    transform: translateY(-50%);
+  }
+
+  /* Door opening animation */
+  .door.open-left {
+    transform: perspective(1000px) rotateY(-110deg);
+  }
+
+  .door.open-right {
+    transform: perspective(1000px) rotateY(110deg);
+  }
+
+  /* Message text */
+  .message {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 2rem;
+    opacity: 0;
+    white-space: nowrap;
+    z-index: 4;
+    text-shadow: 2px 2px 8px black;
+    color: white;
+  }
+
+  /* Mobile responsive */
+  @media (max-width: 768px) {
+    .message {
+      font-size: 1.3rem;
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- Background Video -->
+<video class="background-video" id="bgVideo" muted loop>
+  <source src="https://cdn.pixabay.com/vimeo/239151256/romantic-1280x720.mp4" type="video/mp4">
+</video>
+
+<!-- Background Music -->
+<audio id="bgMusic" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_c4f1a8b9d7.mp3?filename=romantic-piano-110253.mp3"></audio>
+
+<!-- Hearts -->
+<canvas id="heartsCanvas"></canvas>
+
+<!-- Doors -->
+<div class="door-container" id="doorContainer">
+  <div class="door left-door" id="leftDoor"></div>
+  <div class="door right-door" id="rightDoor"></div>
+  <div class="message" id="message"></div>
+</div>
+
+<script>
+  const leftDoor = document.getElementById('leftDoor');
+  const rightDoor = document.getElementById('rightDoor');
+  const message = document.getElementById('message');
+  const doorContainer = document.getElementById('doorContainer');
+  const bgVideo = document.getElementById('bgVideo');
+  const bgMusic = document.getElementById('bgMusic');
+  const canvas = document.getElementById('heartsCanvas');
+  const ctx = canvas.getContext('2d');
+
+  let hearts = [];
+  let showHearts = false;
+  const textToType = "ðŸ’– I have feelings for you ðŸ’–";
+
+  function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  window.addEventListener('resize', resizeCanvas);
+  resizeCanvas();
+
+  function createHeart() {
+    return {
+      x: Math.random() * canvas.width,
+      y: canvas.height + 20,
+      size: Math.random() * 20 + 10,
+      speed: Math.random() * 1 + 0.5,
+      opacity: Math.random() * 0.5 + 0.5
+    };
+  }
+
+  function drawHeart(heart) {
+    ctx.save();
+    ctx.globalAlpha = heart.opacity;
+    ctx.fillStyle = "pink";
+    ctx.beginPath();
+    ctx.moveTo(heart.x, heart.y);
+    ctx.bezierCurveTo(heart.x - heart.size / 2, heart.y - heart.size / 2,
+                      heart.x - heart.size, heart.y + heart.size / 3,
+                      heart.x, heart.y + heart.size);
+    ctx.bezierCurveTo(heart.x + heart.size, heart.y + heart.size / 3,
+                      heart.x + heart.size / 2, heart.y - heart.size / 2,
+                      heart.x, heart.y);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  function updateHearts() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    if (showHearts) {
+      hearts.forEach((heart, index) => {
+        heart.y -= heart.speed;
+        if (heart.y < -20) {
+          hearts[index] = createHeart();
+          hearts[index].y = canvas.height + 20;
+        }
+        drawHeart(heart);
+      });
+    }
+    requestAnimationFrame(updateHearts);
+  }
+  updateHearts();
+
+  function typeWriterEffect(text, element, delay = 100) {
+    element.textContent = "";
+    element.style.opacity = 1;
+    let i = 0;
+    function type() {
+      if (i < text.length) {
+        element.textContent += text.charAt(i);
+        i++;
+        setTimeout(type, delay);
+      }
+    }
+    type();
+  }
+
+  doorContainer.addEventListener('click', () => {
+    leftDoor.classList.add('open-left');
+    rightDoor.classList.add('open-right');
+    bgVideo.play();
+    bgMusic.play();
+
+    setTimeout(() => {
+      showHearts = true;
+      for (let i = 0; i < 30; i++) {
+        hearts.push(createHeart());
+      }
+      typeWriterEffect(textToType, message, 100);
+    }, 1500);
+  });
+</script>
+
+</body>
+</html>
