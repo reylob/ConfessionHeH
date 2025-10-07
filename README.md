@@ -1,4 +1,4 @@
-💖 Open The Door Confession yo!!
+💖 Open The Door Confession yohh!!
 
 A responsive, full-screen romantic reveal web page where two elegant doors open to a heartfelt confession.
 Perfect for a creative love confession or as a fun interactive web project.
